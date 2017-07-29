@@ -1819,6 +1819,8 @@ static void generate_dir_listing(struct connection *conn, const char *path) {
     }
 
     listing = make_apbuf();
+    append(listing, "<!DOCTYPE html>\n");
+    append(listing, "<meta charset=\"UTF-8\">\n");
     append(listing, "<html>\n<head>\n <title>");
     append(listing, conn->url);
     append(listing, "</title>\n</head>\n<body>\n<h1>");
