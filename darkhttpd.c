@@ -1697,6 +1697,7 @@ static int file_exists(const char *path) {
 
 struct dlent {
     char *name;
+    char *rsize;
     int is_dir;
     off_t size;
 };
@@ -1704,6 +1705,21 @@ struct dlent {
 static int dlent_cmp(const void *a, const void *b) {
     return strcmp((*((const struct dlent * const *)a))->name,
                   (*((const struct dlent * const *)b))->name);
+}
+
+char *readable_size(off_t bytes)
+{
+  float rbytes = bytes;
+  int level = 0;
+  char *sizes[4] = {"B","KB","MB","GB"};
+  while(!(rbytes > 1 && rbytes < 1<<10))
+    {
+      rbytes = rbytes/(1<<10);
+      level++;
+    }
+  char rsize[8];
+  sprintf(rsize,"%0.2f%s\n",rbytes,sizes[level]);
+  return xstrdup(rsize);
 }
 
 /* Make sorted list of files in a directory.  Returns number of entries, or -1
@@ -1742,6 +1758,7 @@ static ssize_t make_sorted_dirlist(const char *path, struct dlent ***output) {
         list[entries]->name = xstrdup(ent->d_name);
         list[entries]->is_dir = S_ISDIR(s.st_mode);
         list[entries]->size = s.st_size;
+	    list[entries]->rsize = readable_size(s.st_size);
         entries++;
     }
     closedir(dir);
@@ -1757,6 +1774,7 @@ static void cleanup_sorted_dirlist(struct dlent **list, const ssize_t size) {
 
     for (i = 0; i < size; i++) {
         free(list[i]->name);
+	    free(list[i]->rsize);
         free(list[i]);
     }
 }
@@ -1846,7 +1864,7 @@ static void generate_dir_listing(struct connection *conn, const char *path) {
             append(listing, "/\n");
         else {
             appendl(listing, spaces, maxlen-strlen(list[i]->name));
-            appendf(listing, "%10llu\n", llu(list[i]->size));
+            appendf(listing,"%10s",list[i]->rsize,strlen(list[i]->rsize));
         }
     }
 
