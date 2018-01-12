@@ -1,0 +1,48 @@
+        -:    0:Source:/usr/include/bits/stdlib-bsearch.h
+        -:    0:Graph:darkhttpd.gcno
+        -:    0:Data:darkhttpd.gcda
+        -:    0:Runs:7
+        -:    0:Programs:1
+        -:    1:/* Perform binary search - inline version.
+        -:    2:   Copyright (C) 1991-2017 Free Software Foundation, Inc.
+        -:    3:   This file is part of the GNU C Library.
+        -:    4:
+        -:    5:   The GNU C Library is free software; you can redistribute it and/or
+        -:    6:   modify it under the terms of the GNU Lesser General Public
+        -:    7:   License as published by the Free Software Foundation; either
+        -:    8:   version 2.1 of the License, or (at your option) any later version.
+        -:    9:
+        -:   10:   The GNU C Library is distributed in the hope that it will be useful,
+        -:   11:   but WITHOUT ANY WARRANTY; without even the implied warranty of
+        -:   12:   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+        -:   13:   Lesser General Public License for more details.
+        -:   14:
+        -:   15:   You should have received a copy of the GNU Lesser General Public
+        -:   16:   License along with the GNU C Library; if not, see
+        -:   17:   <http://www.gnu.org/licenses/>.  */
+        -:   18:
+        -:   19:__extern_inline void *
+        -:   20:bsearch (const void *__key, const void *__base, size_t __nmemb, size_t __size,
+        -:   21:	 __compar_fn_t __compar)
+        -:   22:{
+        -:   23:  size_t __l, __u, __idx;
+        -:   24:  const void *__p;
+        -:   25:  int __comparison;
+        -:   26:
+        -:   27:  __l = 0;
+        -:   28:  __u = __nmemb;
+    #####:   29:  while (__l < __u)
+        -:   30:    {
+    #####:   31:      __idx = (__l + __u) / 2;
+    #####:   32:      __p = (void *) (((const char *) __base) + (__idx * __size));
+    #####:   33:      __comparison = (*__compar) (__key, __p);
+    #####:   34:      if (__comparison < 0)
+        -:   35:	__u = __idx;
+    #####:   36:      else if (__comparison > 0)
+    #####:   37:	__l = __idx + 1;
+        -:   38:      else
+        -:   39:	return (void *) __p;
+        -:   40:    }
+        -:   41:
+        -:   42:  return NULL;
+        -:   43:}
